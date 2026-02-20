@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>혈위 암기 플래시카드</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function AcupointFlashcards() {
+            const osuhyeol = {
+                '족궐음간경': { 정: { name: '대돈', en: 'LR 1' }, 형: { name: '행간', en: 'LR 2' }, 유: { name: '태충', en: 'LR 3' }, 경: { name: '중봉', en: 'LR 4' }, 합: { name: '곡천', en: 'LR 8' } },
+                '수소음심경': { 정: { name: '소충', en: 'HT 9' }, 형: { name: '소부', en: 'HT 8' }, 유: { name: '신문', en: 'HT 7' }, 경: { name: '영도', en: 'HT 4' }, 합: { name: '소해', en: 'HT 3' } },
+                '수궐음심포경': { 정: { name: '중충', en: 'PC 9' }, 형: { name: '노궁', en: 'PC 8' }, 유: { name: '대릉', en: 'PC 7' }, 경: { name: '간사', en: 'PC 5' }, 합: { name: '곡택', en: 'PC 3' } },
+                '족태음비경': { 정: { name: '은백', en: 'SP 1' }, 형: { name: '대도', en: 'SP 2' }, 유: { name: '태백', en: 'SP 3' }, 경: { name: '상구', en: 'SP 5' }, 합: { name: '음릉천', en: 'SP 9' } },
+                '수태음폐경': { 정: { name: '소상', en: 'LU 11' }, 형: { name: '어제', en: 'LU 10' }, 유: { name: '태연', en: 'LU 9' }, 경: { name: '경거', en: 'LU 8' }, 합: { name: '척택', en: 'LU 5' } },
+                '족소음신경': { 정: { name: '용천', en: 'KI 1' }, 형: { name: '연곡', en: 'KI 2' }, 유: { name: '태계', en: 'KI 3' }, 경: { name: '복류', en: 'KI 7' }, 합: { name: '음곡', en: 'KI 10' } },
+                '족소양담경': { 정: { name: '족규음', en: 'GB 44' }, 형: { name: '협계', en: 'GB 43' }, 유: { name: '족임읍', en: 'GB 41' }, 경: { name: '양보', en: 'GB 38' }, 합: { name: '양릉천', en: 'GB 34' } },
+                '수태양소장경': { 정: { name: '소택', en: 'SI 1' }, 형: { name: '전곡', en: 'SI 2' }, 유: { name: '후계', en: 'SI 3' }, 경: { name: '양곡', en: 'SI 5' }, 합: { name: '소해', en: 'SI 8' } },
+                '수소양삼초경': { 정: { name: '관충', en: 'TE 1' }, 형: { name: '액문', en: 'TE 2' }, 유: { name: '중저', en: 'TE 3' }, 경: { name: '지구', en: 'TE 6' }, 합: { name: '천정', en: 'TE 10' } },
+                '족양명위경': { 정: { name: '여태', en: 'ST 45' }, 형: { name: '내정', en: 'ST 44' }, 유: { name: '함곡', en: 'ST 43' }, 경: { name: '해계', en: 'ST 41' }, 합: { name: '족삼리', en: 'ST 36' } },
+                '수양명대장경': { 정: { name: '상양', en: 'LI 1' }, 형: { name: '이간', en: 'LI 2' }, 유: { name: '삼간', en: 'LI 3' }, 경: { name: '양계', en: 'LI 5' }, 합: { name: '곡지', en: 'LI 11' } },
+                '족태양방광경': { 정: { name: '지음', en: 'BL 67' }, 형: { name: '족통곡', en: 'BL 66' }, 유: { name: '속골', en: 'BL 65' }, 경: { name: '곤륜', en: 'BL 60' }, 합: { name: '위중', en: 'BL 40' } }
+            };
+
+            const teukjeonghyeol = {
+                '족궐음간경': { 원: { name: '태충', en: 'LR 3' }, 락: { name: '여구', en: 'LR 5' }, 극: { name: '중도', en: 'LR 6' }, 배수: { name: '간수', en: 'BL 18' }, 모: { name: '기문', en: 'LR 14' } },
+                '수소음심경': { 원: { name: '신문', en: 'HT 7' }, 락: { name: '통리', en: 'HT 5' }, 극: { name: '음극', en: 'HT 6' }, 배수: { name: '심수', en: 'BL 15' }, 모: { name: '거궐', en: 'CV 14' } },
+                '수궐음심포경': { 원: { name: '대릉', en: 'PC 7' }, 락: { name: '내관', en: 'PC 6' }, 극: { name: '극문', en: 'PC 4' }, 배수: { name: '궐음수', en: 'BL 14' }, 모: { name: '단중', en: 'CV 17' } },
+                '족태음비경': { 원: { name: '태백', en: 'SP 3' }, 락: { name: '공손', en: 'SP 4' }, 극: { name: '지기', en: 'SP 8' }, 배수: { name: '비수', en: 'BL 20' }, 모: { name: '장문', en: 'LR 13' } },
+                '수태음폐경': { 원: { name: '태연', en: 'LU 9' }, 락: { name: '열결', en: 'LU 7' }, 극: { name: '공최', en: 'LU 6' }, 배수: { name: '폐수', en: 'BL 13' }, 모: { name: '중부', en: 'LU 1' } },
+                '족소음신경': { 원: { name: '태계', en: 'KI 3' }, 락: { name: '대종', en: 'KI 4' }, 극: { name: '수천', en: 'KI 5' }, 배수: { name: '신수', en: 'BL 23' }, 모: { name: '경문', en: 'GB 25' } },
+                '족소양담경': { 원: { name: '구허', en: 'GB 40' }, 락: { name: '광명', en: 'GB 37' }, 극: { name: '외구', en: 'GB 36' }, 배수: { name: '담수', en: 'BL 19' }, 모: { name: '일월', en: 'GB 24' }, 하합: { name: '양릉천', en: 'GB 34' } },
+                '수태양소장경': { 원: { name: '완골', en: 'SI 4' }, 락: { name: '지정', en: 'SI 7' }, 극: { name: '양로', en: 'SI 6' }, 배수: { name: '소장수', en: 'BL 27' }, 모: { name: '관원', en: 'CV 4' }, 하합: { name: '하거허', en: 'ST 39' } },
+                '수소양삼초경': { 원: { name: '양지', en: 'TE 4' }, 락: { name: '외관', en: 'TE 5' }, 극: { name: '회종', en: 'TE 7' }, 배수: { name: '삼초수', en: 'BL 22' }, 모: { name: '석문', en: 'CV 5' }, 하합: { name: '위양', en: 'BL 39' } },
+                '족양명위경': { 원: { name: '충양', en: 'ST 42' }, 락: { name: '풍륭', en: 'ST 40' }, 극: { name: '양구', en: 'ST 34' }, 배수: { name: '위수', en: 'BL 21' }, 모: { name: '중완', en: 'CV 12' }, 하합: { name: '족삼리', en: 'ST 36' } },
+                '수양명대장경': { 원: { name: '합곡', en: 'LI 4' }, 락: { name: '편력', en: 'LI 6' }, 극: { name: '온류', en: 'LI 7' }, 배수: { name: '대장수', en: 'BL 25' }, 모: { name: '천추', en: 'ST 25' }, 하합: { name: '상거허', en: 'ST 37' } },
+                '족태양방광경': { 원: { name: '경골', en: 'BL 64' }, 락: { name: '비양', en: 'BL 58' }, 극: { name: '금문', en: 'BL 63' }, 배수: { name: '방광수', en: 'BL 28' }, 모: { name: '중극', en: 'CV 3' }, 하합: { name: '위중', en: 'BL 40' } }
+            };
+
+            const ohyeong = {
+                '족궐음간경': { 목: { name: '대돈', en: 'LR 1' }, 화: { name: '행간', en: 'LR 2' }, 토: { name: '태충', en: 'LR 3' }, 금: { name: '중봉', en: 'LR 4' }, 수: { name: '곡천', en: 'LR 8' } },
+                '수소음심경': { 목: { name: '소충', en: 'HT 9' }, 화: { name: '소부', en: 'HT 8' }, 토: { name: '신문', en: 'HT 7' }, 금: { name: '영도', en: 'HT 4' }, 수: { name: '소해', en: 'HT 3' } },
+                '수궐음심포경': { 목: { name: '중충', en: 'PC 9' }, 화: { name: '노궁', en: 'PC 8' }, 토: { name: '대릉', en: 'PC 7' }, 금: { name: '간사', en: 'PC 5' }, 수: { name: '곡택', en: 'PC 3' } },
+                '족태음비경': { 목: { name: '은백', en: 'SP 1' }, 화: { name: '대도', en: 'SP 2' }, 토: { name: '태백', en: 'SP 3' }, 금: { name: '상구', en: 'SP 5' }, 수: { name: '음릉천', en: 'SP 9' } },
+                '수태음폐경': { 목: { name: '소상', en: 'LU 11' }, 화: { name: '어제', en: 'LU 10' }, 토: { name: '태연', en: 'LU 9' }, 금: { name: '경거', en: 'LU 8' }, 수: { name: '척택', en: 'LU 5' } },
+                '족소음신경': { 목: { name: '용천', en: 'KI 1' }, 화: { name: '연곡', en: 'KI 2' }, 토: { name: '태계', en: 'KI 3' }, 금: { name: '복류', en: 'KI 7' }, 수: { name: '음곡', en: 'KI 10' } },
+                '족소양담경': { 금: { name: '족규음', en: 'GB 44' }, 수: { name: '협계', en: 'GB 43' }, 목: { name: '족임읍', en: 'GB 41' }, 화: { name: '양보', en: 'GB 38' }, 토: { name: '양릉천', en: 'GB 34' } },
+                '수태양소장경': { 금: { name: '소택', en: 'SI 1' }, 수: { name: '전곡', en: 'SI 2' }, 목: { name: '후계', en: 'SI 3' }, 화: { name: '양곡', en: 'SI 5' }, 토: { name: '소해', en: 'SI 8' } },
+                '수소양삼초경': { 금: { name: '관충', en: 'TE 1' }, 수: { name: '액문', en: 'TE 2' }, 목: { name: '중저', en: 'TE 3' }, 화: { name: '지구', en: 'TE 6' }, 토: { name: '천정', en: 'TE 10' } },
+                '족양명위경': { 금: { name: '여태', en: 'ST 45' }, 수: { name: '내정', en: 'ST 44' }, 목: { name: '함곡', en: 'ST 43' }, 화: { name: '해계', en: 'ST 41' }, 토: { name: '족삼리', en: 'ST 36' } },
+                '수양명대장경': { 금: { name: '상양', en: 'LI 1' }, 수: { name: '이간', en: 'LI 2' }, 목: { name: '삼간', en: 'LI 3' }, 화: { name: '양계', en: 'LI 5' }, 토: { name: '곡지', en: 'LI 11' } },
+                '족태양방광경': { 금: { name: '지음', en: 'BL 67' }, 수: { name: '족통곡', en: 'BL 66' }, 목: { name: '속골', en: 'BL 65' }, 화: { name: '곤륜', en: 'BL 60' }, 토: { name: '위중', en: 'BL 40' } }
+            };
+
+            // 사총혈 (四總穴)
+            const sachonghyeol = {
+                '복부': { name: '족삼리', en: 'ST 36', desc: 'Abdomen' },
+                '요배': { name: '위중', en: 'BL 40', desc: 'Back (upper and lower)' },
+                '두항': { name: '열결', en: 'LU 7', desc: 'Head and back of neck' },
+                '면구': { name: '합곡', en: 'LI 4', desc: 'Face and mouth' }
+            };
+
+            // 팔맥교회혈 (八脈交會穴)
+            const palmaekyohoe = {
+                '공손': { name: '공손', en: 'SP 4', connects: '충맥', connectsEn: 'Chong Mai' },
+                '내관': { name: '내관', en: 'PC 6', connects: '음유맥', connectsEn: 'Yin Wei Mai' },
+                '족임읍': { name: '족임읍', en: 'GB 41', connects: '대맥', connectsEn: 'Dai Mai' },
+                '외관': { name: '외관', en: 'TE 5', connects: '양유맥', connectsEn: 'Yang Wei Mai' },
+                '후계': { name: '후계', en: 'SI 3', connects: '독맥', connectsEn: 'Du Mai' },
+                '신맥': { name: '신맥', en: 'BL 62', connects: '양교맥', connectsEn: 'Yang Qiao Mai' },
+                '열결': { name: '열결', en: 'LU 7', connects: '임맥', connectsEn: 'Ren Mai' },
+                '조해': { name: '조해', en: 'KI 6', connects: '음교맥', connectsEn: 'Yin Qiao Mai' }
+            };
+
+            // 팔회혈 (八會穴)
+            const palhoehyeol = {
+                '장회': { name: '장문', en: 'LR 13', category: '臟', categoryEn: 'Zang (Organs)' },
+                '부회': { name: '중완', en: 'CV 12', category: '腑', categoryEn: 'Fu (Bowels)' },
+                '기회': { name: '단중', en: 'CV 17', category: '氣', categoryEn: 'Qi' },
+                '혈회': { name: '격수', en: 'BL 17', category: '血', categoryEn: 'Blood' },
+                '근회': { name: '양릉천', en: 'GB 34', category: '筋', categoryEn: 'Tendons' },
+                '맥회': { name: '태연', en: 'LU 9', category: '脈', categoryEn: 'Vessels' },
+                '골회': { name: '대저', en: 'BL 11', category: '骨', categoryEn: 'Bones' },
+                '수회': { name: '현종', en: 'GB 39', category: '髓', categoryEn: 'Marrow' }
+            };
+
+            // 기경팔맥 극혈
+            const gigyeonggeuk = {
+                '양교맥': { name: '부양', en: 'BL 59' },
+                '음교맥': { name: '교신', en: 'KI 8' },
+                '양유맥': { name: '양교', en: 'GB 35' },
+                '음유맥': { name: '축빈', en: 'KI 9' }
+            };
+
+            const [mode, setMode] = useState('all');
+            const [studyMode, setStudyMode] = useState('random');
+            const [currentCard, setCurrentCard] = useState(null);
+            const [showAnswer, setShowAnswer] = useState(false);
+            const [stats, setStats] = useState({ correct: 0, incorrect: 0 });
+            const [wrongAnswers, setWrongAnswers] = useState([]);
+            const [allQuestions, setAllQuestions] = useState([]);
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [showWrongList, setShowWrongList] = useState(false);
+            const [questionHistory, setQuestionHistory] = useState([]);
+            const [historyIndex, setHistoryIndex] = useState(-1);
+
+            const generateAllQuestions = () => {
+                const questions = [];
+                
+                const meridianEnMap = {
+                    '족궐음간경': 'Liver',
+                    '수소음심경': 'Heart',
+                    '수궐음심포경': 'Pericardium',
+                    '족태음비경': 'Spleen',
+                    '수태음폐경': 'Lung',
+                    '족소음신경': 'Kidney',
+                    '족소양담경': 'Gallbladder',
+                    '수태양소장경': 'Small Intestine',
+                    '수소양삼초경': 'Triple Energizer',
+                    '족양명위경': 'Stomach',
+                    '수양명대장경': 'Large Intestine',
+                    '족태양방광경': 'Bladder'
+                };
+                
+                // 오수혈
+                Object.keys(osuhyeol).forEach(meridian => {
+                    ['정', '형', '유', '경', '합'].forEach(pointType => {
+                        const typeMap = { 
+                            정: { kr: '정혈', en: 'Jing-Well' }, 
+                            형: { kr: '형혈', en: 'Ying-Spring' }, 
+                            유: { kr: '유혈', en: 'Shu-Stream' }, 
+                            경: { kr: '경혈', en: 'Jing-River' }, 
+                            합: { kr: '합혈', en: 'He-Sea' }
+                        };
+                        const pointData = osuhyeol[meridian][pointType];
+                        questions.push({
+                            category: '오수혈',
+                            meridian,
+                            meridianEn: meridianEnMap[meridian],
+                            pointType,
+                            pointTypeKorean: typeMap[pointType].kr,
+                            pointTypeEnglish: `${typeMap[pointType].en} of ${meridianEnMap[meridian]} meridian`,
+                            answer: pointData.name,
+                            answerEn: pointData.en
+                        });
+                    });
+                });
+
+                // 특정혈
+                Object.keys(teukjeonghyeol).forEach(meridian => {
+                    Object.keys(teukjeonghyeol[meridian]).forEach(pointType => {
+                        const typeMap = { 
+                            원: { kr: '원혈', en: 'Yuan-Source' }, 
+                            락: { kr: '락혈', en: 'Luo-Connecting' }, 
+                            극: { kr: '극혈', en: 'Xi-Cleft' }, 
+                            배수: { kr: '배수혈', en: 'Back-Shu' }, 
+                            모: { kr: '모혈', en: 'Front-Mu' }, 
+                            하합: { kr: '하합혈', en: 'Lower He-Sea' }
+                        };
+                        const pointData = teukjeonghyeol[meridian][pointType];
+                        questions.push({
+                            category: '특정혈',
+                            meridian,
+                            meridianEn: meridianEnMap[meridian],
+                            pointType,
+                            pointTypeKorean: typeMap[pointType].kr,
+                            pointTypeEnglish: `${typeMap[pointType].en} of ${meridianEnMap[meridian]} meridian`,
+                            answer: pointData.name,
+                            answerEn: pointData.en
+                        });
+                    });
+                });
+
+                // 오행혈
+                Object.keys(ohyeong).forEach(meridian => {
+                    ['목', '화', '토', '금', '수'].forEach(element => {
+                        if (ohyeong[meridian][element]) {
+                            const typeMap = { 
+                                목: { kr: '목혈', en: 'Wood' }, 
+                                화: { kr: '화혈', en: 'Fire' }, 
+                                토: { kr: '토혈', en: 'Earth' }, 
+                                금: { kr: '금혈', en: 'Metal' }, 
+                                수: { kr: '수혈', en: 'Water' }
+                            };
+                            const pointData = ohyeong[meridian][element];
+                            questions.push({
+                                category: '오행혈',
+                                meridian,
+                                meridianEn: meridianEnMap[meridian],
+                                pointType: element,
+                                pointTypeKorean: typeMap[element].kr,
+                                pointTypeEnglish: `${typeMap[element].en} point of ${meridianEnMap[meridian]} meridian`,
+                                answer: pointData.name,
+                                answerEn: pointData.en
+                            });
+                        }
+                    });
+                });
+
+                // 사총혈
+                Object.keys(sachonghyeol).forEach(area => {
+                    const pointData = sachonghyeol[area];
+                    questions.push({
+                        category: '사총혈',
+                        meridian: area,
+                        meridianEn: pointData.desc,
+                        pointType: area,
+                        pointTypeKorean: `${area}의 사총혈`,
+                        pointTypeEnglish: `Command point for ${pointData.desc}`,
+                        answer: pointData.name,
+                        answerEn: pointData.en
+                    });
+                });
+
+                // 팔맥교회혈
+                Object.keys(palmaekyohoe).forEach(point => {
+                    const pointData = palmaekyohoe[point];
+                    questions.push({
+                        category: '팔맥교회혈',
+                        meridian: pointData.connects,
+                        meridianEn: pointData.connectsEn,
+                        pointType: point,
+                        pointTypeKorean: `${pointData.connects}의 교회혈`,
+                        pointTypeEnglish: `Confluent point of ${pointData.connectsEn}`,
+                        answer: pointData.name,
+                        answerEn: pointData.en
+                    });
+                });
+
+                // 팔회혈
+                Object.keys(palhoehyeol).forEach(type => {
+                    const pointData = palhoehyeol[type];
+                    questions.push({
+                        category: '팔회혈',
+                        meridian: pointData.category,
+                        meridianEn: pointData.categoryEn,
+                        pointType: type,
+                        pointTypeKorean: type,
+                        pointTypeEnglish: `Influential point of ${pointData.categoryEn}`,
+                        answer: pointData.name,
+                        answerEn: pointData.en
+                    });
+                });
+
+                // 기경팔맥 극혈
+                Object.keys(gigyeonggeuk).forEach(vessel => {
+                    const pointData = gigyeonggeuk[vessel];
+                    questions.push({
+                        category: '기경팔맥 극혈',
+                        meridian: vessel,
+                        meridianEn: vessel,
+                        pointType: '극혈',
+                        pointTypeKorean: `${vessel}의 극혈`,
+                        pointTypeEnglish: `Xi-Cleft point of ${vessel}`,
+                        answer: pointData.name,
+                        answerEn: pointData.en
+                    });
+                });
+
+                return questions;
+            };
+
+            useEffect(() => {
+                const questions = generateAllQuestions();
+                const shuffled = [...questions].sort(() => Math.random() - 0.5);
+                setAllQuestions(shuffled);
+            }, []);
+
+            const generateQuestion = () => {
+                let questionsPool = mode === 'wrong' ? wrongAnswers : allQuestions;
+                
+                if (questionsPool.length === 0) {
+                    if (mode === 'wrong') {
+                        alert('틀린 문제가 없습니다!');
+                        setMode('all');
+                        questionsPool = allQuestions;
+                    } else {
+                        return;
+                    }
+                }
+
+                let newCard;
+                if (studyMode === 'random') {
+                    const randomIndex = Math.floor(Math.random() * questionsPool.length);
+                    newCard = questionsPool[randomIndex];
+                } else {
+                    newCard = questionsPool[currentIndex % questionsPool.length];
+                }
+                
+                setCurrentCard(newCard);
+                setQuestionHistory(prev => {
+                    const newHistory = [...prev, newCard];
+                    setHistoryIndex(newHistory.length - 1);
+                    return newHistory;
+                });
+                setShowAnswer(false);
+            };
+
+            const navigateHistory = (direction) => {
+                if (direction === 'prev' && historyIndex > 0) {
+                    const newIndex = historyIndex - 1;
+                    setHistoryIndex(newIndex);
+                    setCurrentCard(questionHistory[newIndex]);
+                    setShowAnswer(false);
+                } else if (direction === 'next' && historyIndex < questionHistory.length - 1) {
+                    const newIndex = historyIndex + 1;
+                    setHistoryIndex(newIndex);
+                    setCurrentCard(questionHistory[newIndex]);
+                    setShowAnswer(false);
+                }
+            };
+
+            useEffect(() => {
+                if (allQuestions.length > 0) {
+                    generateQuestion();
+                }
+            }, [mode, studyMode, allQuestions]);
+
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (!showAnswer) {
+                            setShowAnswer(true);
+                        }
+                    }
+                    
+                    if (showAnswer) {
+                        if (e.key === '1') {
+                            e.preventDefault();
+                            handleCorrect();
+                        }
+                        if (e.key === '2') {
+                            e.preventDefault();
+                            handleIncorrect();
+                        }
+                    }
+                    
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        navigateHistory('prev');
+                    }
+                    
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        if (historyIndex < questionHistory.length - 1) {
+                            navigateHistory('next');
+                        } else {
+                            nextQuestion();
+                        }
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [showAnswer, historyIndex, questionHistory]);
+
+            const handleFlip = () => setShowAnswer(!showAnswer);
+            
+            const handleCorrect = () => {
+                setStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+                if (currentCard) {
+                    setWrongAnswers(prev => prev.filter(q => 
+                        !(q.meridian === currentCard.meridian && 
+                          q.pointType === currentCard.pointType && 
+                          q.category === currentCard.category)
+                    ));
+                }
+                nextQuestion();
+            };
+            
+            const handleIncorrect = () => {
+                setStats(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+                if (currentCard) {
+                    const exists = wrongAnswers.some(q => 
+                        q.meridian === currentCard.meridian && 
+                        q.pointType === currentCard.pointType && 
+                        q.category === currentCard.category
+                    );
+                    if (!exists) {
+                        setWrongAnswers(prev => [...prev, currentCard]);
+                    }
+                }
+                nextQuestion();
+            };
+
+            const nextQuestion = () => {
+                if (studyMode === 'sequential') {
+                    setCurrentIndex(prev => prev + 1);
+                } else {
+                    generateQuestion();
+                }
+            };
+
+            const handleReset = () => {
+                setStats({ correct: 0, incorrect: 0 });
+                setWrongAnswers([]);
+                setCurrentIndex(0);
+                setMode('all');
+                setQuestionHistory([]);
+                setHistoryIndex(-1);
+                generateQuestion();
+            };
+
+            const handleModeChange = (newMode) => {
+                setMode(newMode);
+                setCurrentIndex(0);
+            };
+
+            const handleStudyModeChange = (newStudyMode) => {
+                setStudyMode(newStudyMode);
+                setCurrentIndex(0);
+                if (newStudyMode === 'random') {
+                    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+                    setAllQuestions(shuffled);
+                }
+            };
+
+            if (!currentCard) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                        <div className="text-2xl text-gray-600">로딩 중...</div>
+                    </div>
+                );
+            }
+
+            const accuracy = stats.correct + stats.incorrect > 0 
+                ? Math.round((stats.correct / (stats.correct + stats.incorrect)) * 100) 
+                : 0;
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+                    <div className="max-w-2xl mx-auto">
+                        <div className="text-center mb-6">
+                            <h1 className="text-3xl font-bold text-gray-800 mb-2">혈위 암기 플래시카드</h1>
+                            <p className="text-gray-600">오수혈·특정혈·오행혈·사총혈·팔맥교회혈·팔회혈·기경팔맥 극혈 (영문 표기 포함)</p>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-600 mb-2 font-medium">문제 선택</p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleModeChange('all')}
+                                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                                                mode === 'all' 
+                                                    ? 'bg-indigo-600 text-white shadow' 
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            전체 ({allQuestions.length})
+                                        </button>
+                                        <button
+                                            onClick={() => handleModeChange('wrong')}
+                                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                                                mode === 'wrong' 
+                                                    ? 'bg-red-600 text-white shadow' 
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            틀린것 ({wrongAnswers.length})
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600 mb-2 font-medium">순서</p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleStudyModeChange('random')}
+                                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                                                studyMode === 'random' 
+                                                    ? 'bg-indigo-600 text-white shadow' 
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            🔀 랜덤
+                                        </button>
+                                        <button
+                                            onClick={() => handleStudyModeChange('sequential')}
+                                            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                                                studyMode === 'sequential' 
+                                                    ? 'bg-indigo-600 text-white shadow' 
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            📋 순차
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                            <div className="bg-white rounded-lg p-4 text-center shadow">
+                                <div className="text-2xl font-bold text-green-600">{stats.correct}</div>
+                                <div className="text-sm text-gray-600">정답</div>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 text-center shadow">
+                                <div className="text-2xl font-bold text-red-600">{stats.incorrect}</div>
+                                <div className="text-sm text-gray-600">오답</div>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 text-center shadow">
+                                <div className="text-2xl font-bold text-indigo-600">{accuracy}%</div>
+                                <div className="text-sm text-gray-600">정확도</div>
+                            </div>
+                        </div>
+
+                        <div 
+                            onClick={handleFlip}
+                            className="bg-white rounded-2xl shadow-2xl p-8 mb-6 cursor-pointer transform transition-all hover:scale-105 min-h-[300px] flex flex-col justify-center items-center"
+                        >
+                            <div className="text-center w-full">
+                                <div className="flex items-center justify-between mb-4 px-4">
+                                    <div className="text-xs text-gray-400">
+                                        {historyIndex >= 0 && `${historyIndex + 1}/${questionHistory.length}`}
+                                    </div>
+                                    <div className="text-sm text-indigo-600 font-medium">
+                                        {currentCard.category}
+                                    </div>
+                                    <div className="text-xs text-gray-400 flex gap-1">
+                                        {historyIndex > 0 && <span>← 이전</span>}
+                                        {historyIndex < questionHistory.length - 1 && <span>다음 →</span>}
+                                    </div>
+                                </div>
+                                
+                                {!showAnswer ? (
+                                    <>
+                                        <div className="text-4xl font-bold text-gray-800 mb-4">
+                                            {currentCard.meridian}의
+                                        </div>
+                                        <div className="text-5xl font-bold text-indigo-600 mb-2">
+                                            {currentCard.pointTypeKorean}은?
+                                        </div>
+                                        <div className="text-sm text-gray-500 mb-8">
+                                            {currentCard.pointTypeEnglish}
+                                        </div>
+                                        <div className="mt-8 text-sm text-gray-500">
+                                            <kbd className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded font-mono text-xs">Enter</kbd> / <kbd className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded font-mono text-xs">Space</kbd>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="text-2xl text-gray-600 mb-4">
+                                            {currentCard.meridian}의 {currentCard.pointTypeKorean}
+                                        </div>
+                                        <div className="text-6xl font-bold text-indigo-600 mb-2">
+                                            {currentCard.answer}
+                                        </div>
+                                        <div className="text-2xl text-gray-500 mb-8">
+                                            {currentCard.answerEn}
+                                        </div>
+                                        <div className="mt-8 text-sm text-gray-500">
+                                            <kbd className="px-2 py-1 bg-green-100 text-green-700 rounded font-mono text-xs">1</kbd> 맞음 • 
+                                            <kbd className="px-2 py-1 bg-red-100 text-red-700 rounded font-mono text-xs">2</kbd> 틀림
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {showAnswer && (
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <button
+                                    onClick={handleIncorrect}
+                                    className="bg-red-500 hover:bg-red-600 text-white font-medium py-4 rounded-lg shadow-lg transition-all flex items-center justify-center gap-2"
+                                >
+                                    ❌ 틀렸어요
+                                </button>
+                                <button
+                                    onClick={handleCorrect}
+                                    className="bg-green-500 hover:bg-green-600 text-white font-medium py-4 rounded-lg shadow-lg transition-all flex items-center justify-center gap-2"
+                                >
+                                    ✅ 맞았어요
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <button
+                                onClick={() => setShowWrongList(!showWrongList)}
+                                className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-lg shadow transition-all flex items-center justify-center gap-2"
+                            >
+                                ⚠️ 틀린 문제 ({wrongAnswers.length})
+                            </button>
+                            <button
+                                onClick={handleReset}
+                                className="bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-lg shadow transition-all flex items-center justify-center gap-2"
+                            >
+                                🔄 전체 리셋
+                            </button>
+                        </div>
+
+                        {showWrongList && wrongAnswers.length > 0 && (
+                            <div className="bg-white rounded-lg p-4 mb-4 shadow max-h-60 overflow-y-auto">
+                                <h3 className="font-bold text-gray-800 mb-3">틀린 문제 목록</h3>
+                                {wrongAnswers.map((q, idx) => (
+                                    <div key={idx} className="text-sm py-2 border-b border-gray-100 last:border-0">
+                                        <span className="text-gray-600">{q.category}</span> • {q.meridian} {q.pointTypeKorean} → <span className="font-bold text-indigo-600">{q.answer}</span> <span className="text-gray-500 text-xs">({q.answerEn})</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="mt-6 text-center text-sm text-gray-600">
+                            <p className="mb-2">
+                                오수혈 + 특정혈 + 오행혈 + 사총혈 + 팔맥교회혈 + 팔회혈 + 기경팔맥 극혈
+                            </p>
+                            <p className="text-xs text-gray-500 mb-2">
+                                총 {allQuestions.length}개 문제 | 음경: 목화토금수 / 양경: 금수목화토
+                            </p>
+                            <p className="text-xs text-indigo-600">
+                                💡 키보드: Enter/Space=뒤집기 | 1=맞음 | 2=틀림 | ←/→=앞뒤이동
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<AcupointFlashcards />, document.getElementById('root'));
+    </script>
+</body>
+</html>
